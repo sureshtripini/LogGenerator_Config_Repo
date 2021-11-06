@@ -1,0 +1,50 @@
+steps:
+   # Clone git repo
+   - name: 'gcr.io/cloud-builders/gcloud'
+     id: Clone deployment repository
+     entrypoint: /bin/sh
+     args:
+     - '-c'
+     - |
+       git clone https://github.com/sureshtripini/LogGenerator_Config_Repo.git && \
+       cd LogGenerator_Config_Repo && \
+       git checkout main && \
+       git config user.email $(gcloud auth list --filter=status:ACTIVE --format='value(account)')
+   # Deploy into K8S cluster
+   - name: 'gcr.io/cloud-builders/kubectl'
+     id: Deploy loggenerator application to GKE Cluster
+     args:
+     - 'apply'
+     - '-f'
+     - './LogGenerator_Config_Repo/kubernetes'
+     env:
+     - 'CLOUDSDK_COMPUTE_ZONE=europe-west1-c'
+     - 'CLOUDSDK_CONTAINER_CLUSTER=business-transaction-monitoring'
+
+#   - name: 'gcr.io/cloud-builders/git'
+#     args: ['clone', 'https://github.com/sureshtripini/LogGenerator.git']
+#   - name: 'gcr.io/cloud-builders/kubectl'
+#     args: ['apply', '-f', 'loggenerator/deployment.yaml']
+#     env:
+#     - 'CLOUDSDK_COMPUTE_ZONE=europe-west3-c'
+#     - 'CLOUDSDK_CONTAINER_CLUSTER=btm-cluster'
+#   - name: "gcr.io/cloud-builders/gke-deploy"
+#     args:
+#     - run
+#     - --filename=/workspace/.git/LogGenerator/deployment.yaml
+#     - --image=gcr.io/$PROJECT_ID/loggenerator:latest
+#     - --location=europe-west3-c
+#     - --cluster=btm-clusterr
+#   - name: 'gcr.io/cloud-builders/docker'
+#     entrypoint: 'bash'
+#     args: ['-c', 'docker login --username=sureshtripini --password=XXXXX']
+#   - name: 'gcr.io/cloud-builders/docker'
+#     entrypoint: 'bash'
+#     args: ['-c', 'docker build -t sureshtripini/loggenerator:latest .']
+#   - name: 'gcr.io/cloud-builders/docker'
+#     entrypoint: 'bash'
+#     args: ['-c', 'docker push sureshtripini/loggenerator:latest']
+#https://cloud.google.com/build/docs/interacting-with-dockerhub-images
+#https://medium.com/platformer-blog/ci-cd-with-gke-and-google-cloud-build-98a797ecf346
+#images: ["gcr.io/$PROJECT_ID/DummyFileGenerator"]
+
